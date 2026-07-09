@@ -53,11 +53,12 @@ public class Sabnzbd(ILogger<Sabnzbd> logger, Torrents torrents, AppSettings app
                                       }
 
                                       var mbBytes = dlBytesTotal > 0 ? dlBytesTotal : (t.RdSize ?? 0);
+
                                       var mbLeftBytes = dlBytesTotal > 0
-                                                            ? dlBytesTotal - dlBytesDone
-                                                            : (t.RdSize.HasValue
-                                                                   ? (Int64)(t.RdSize.Value * (1.0 - rdProgress))
-                                                                   : 0);
+                                          ? dlBytesTotal - dlBytesDone
+                                          : (t.RdSize.HasValue
+                                              ? (Int64)(t.RdSize.Value * (1.0 - rdProgress))
+                                              : 0);
 
                                       return new SabnzbdQueueSlot
                                       {
@@ -65,11 +66,11 @@ public class Sabnzbd(ILogger<Sabnzbd> logger, Torrents torrents, AppSettings app
                                           NzoId = t.Hash,
                                           Filename = t.RdName ?? t.Hash,
                                           Size = dlBytesTotal > 0
-                                                    ? FileSizeHelper.FormatSize(dlBytesTotal)
-                                                    : FileSizeHelper.FormatSize(t.RdSize),
+                                              ? FileSizeHelper.FormatSize(dlBytesTotal)
+                                              : FileSizeHelper.FormatSize(t.RdSize),
                                           SizeLeft = dlBytesTotal > 0
-                                                          ? FileSizeHelper.FormatSize(dlBytesTotal - dlBytesDone)
-                                                          : FileSizeHelper.FormatSize(t.RdSize.HasValue ? (Int64)(t.RdSize.Value * (1.0 - rdProgress)) : null),
+                                              ? FileSizeHelper.FormatSize(dlBytesTotal - dlBytesDone)
+                                              : FileSizeHelper.FormatSize(t.RdSize.HasValue ? (Int64)(t.RdSize.Value * (1.0 - rdProgress)) : null),
                                           Mb = (mbBytes / 1048576.0).ToString("0.00"),
                                           MbLeft = (Math.Max(mbLeftBytes, 0) / 1048576.0).ToString("0.00"),
                                           Percentage = (progress * 100.0).ToString("0"),

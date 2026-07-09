@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using RdtClient.Data.Data;
 using RdtClient.Data.Enums;
-using RdtClient.Data.Models.Data;
 
 namespace RdtClient.Service.Test.Regression;
 
@@ -30,67 +29,66 @@ public class TorrentPayloadMigrationTests : IAsyncLifetime
         var torrentId = Guid.NewGuid();
         const String payload = "magnet:?xt=urn:btih:legacy-hash";
 
-        await migrationContext.Database.ExecuteSqlRawAsync(
-            """
-            INSERT INTO Torrents (
-                TorrentId,
-                Hash,
-                DownloadAction,
-                FinishedAction,
-                FinishedActionDelay,
-                HostDownloadAction,
-                DownloadMinSize,
-                DownloadClient,
-                Added,
-                Type,
-                FileOrMagnet,
-                IsFile,
-                RetryCount,
-                DownloadRetryAttempts,
-                TorrentRetryAttempts,
-                DeleteOnError,
-                Lifetime,
-                RdName
-            )
-            VALUES (
-                {0},
-                {1},
-                {2},
-                {3},
-                {4},
-                {5},
-                {6},
-                {7},
-                {8},
-                {9},
-                {10},
-                {11},
-                {12},
-                {13},
-                {14},
-                {15},
-                {16},
-                {17}
-            );
-            """,
-            torrentId,
-            "legacy-hash",
-            (Int32)TorrentDownloadAction.DownloadAll,
-            (Int32)TorrentFinishedAction.None,
-            0,
-            (Int32)TorrentHostDownloadAction.DownloadAll,
-            0,
-            (Int32)DownloadClient.Bezzad,
-            DateTimeOffset.UtcNow,
-            (Int32)DownloadType.Torrent,
-            payload,
-            false,
-            0,
-            0,
-            0,
-            0,
-            0,
-            "Legacy Torrent");
+        await migrationContext.Database.ExecuteSqlRawAsync("""
+                                                           INSERT INTO Torrents (
+                                                               TorrentId,
+                                                               Hash,
+                                                               DownloadAction,
+                                                               FinishedAction,
+                                                               FinishedActionDelay,
+                                                               HostDownloadAction,
+                                                               DownloadMinSize,
+                                                               DownloadClient,
+                                                               Added,
+                                                               Type,
+                                                               FileOrMagnet,
+                                                               IsFile,
+                                                               RetryCount,
+                                                               DownloadRetryAttempts,
+                                                               TorrentRetryAttempts,
+                                                               DeleteOnError,
+                                                               Lifetime,
+                                                               RdName
+                                                           )
+                                                           VALUES (
+                                                               {0},
+                                                               {1},
+                                                               {2},
+                                                               {3},
+                                                               {4},
+                                                               {5},
+                                                               {6},
+                                                               {7},
+                                                               {8},
+                                                               {9},
+                                                               {10},
+                                                               {11},
+                                                               {12},
+                                                               {13},
+                                                               {14},
+                                                               {15},
+                                                               {16},
+                                                               {17}
+                                                           );
+                                                           """,
+                                                           torrentId,
+                                                           "legacy-hash",
+                                                           (Int32)TorrentDownloadAction.DownloadAll,
+                                                           (Int32)TorrentFinishedAction.None,
+                                                           0,
+                                                           (Int32)TorrentHostDownloadAction.DownloadAll,
+                                                           0,
+                                                           (Int32)DownloadClient.Bezzad,
+                                                           DateTimeOffset.UtcNow,
+                                                           (Int32)DownloadType.Torrent,
+                                                           payload,
+                                                           false,
+                                                           0,
+                                                           0,
+                                                           0,
+                                                           0,
+                                                           0,
+                                                           "Legacy Torrent");
 
         var migrationsAssembly = migrationContext.GetService<IMigrationsAssembly>();
         var modelDiffer = migrationContext.GetService<IMigrationsModelDiffer>();

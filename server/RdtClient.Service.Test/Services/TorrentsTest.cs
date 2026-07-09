@@ -445,6 +445,7 @@ public class TorrentsTest
     {
         var mocks = new Mocks();
         var magnetLink = "magnet:?xt=urn:btih:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&dn=RetryTorrent";
+
         var originalTorrent = new Torrent
         {
             TorrentId = Guid.NewGuid(),
@@ -467,19 +468,24 @@ public class TorrentsTest
 
         mocks.TorrentDataMock.Setup(t => t.GetById(originalTorrent.TorrentId))
              .ReturnsAsync(originalTorrent);
+
         mocks.TorrentDataMock.Setup(t => t.UpdateComplete(It.IsAny<Guid>(),
                                                           It.IsAny<String?>(),
                                                           It.IsAny<DateTimeOffset?>(),
                                                           It.IsAny<Boolean>()))
              .Returns(Task.CompletedTask);
+
         mocks.TorrentDataMock.Setup(t => t.UpdateRetry(It.IsAny<Guid>(),
                                                        It.IsAny<DateTimeOffset?>(),
                                                        It.IsAny<Int32>()))
              .Returns(Task.CompletedTask);
+
         mocks.TorrentDataMock.Setup(t => t.Delete(originalTorrent.TorrentId))
              .Returns(Task.CompletedTask);
+
         mocks.TorrentDataMock.Setup(t => t.GetByHash(It.IsAny<String>()))
              .ReturnsAsync((Torrent?)null);
+
         mocks.TorrentDataMock.Setup(t => t.Add(null,
                                                It.IsAny<String>(),
                                                magnetLink,
@@ -488,6 +494,7 @@ public class TorrentsTest
                                                originalTorrent.DownloadClient,
                                                It.IsAny<Torrent>()))
              .ReturnsAsync(requeuedTorrent);
+
         mocks.EnricherMock.Setup(e => e.EnrichMagnetLink(magnetLink))
              .ReturnsAsync(magnetLink);
 
@@ -515,6 +522,7 @@ public class TorrentsTest
                                                 originalTorrent.DownloadClient,
                                                 It.IsAny<Torrent>()),
                                      Times.Once);
+
         mocks.TorrentDataMock.Verify(t => t.UpdateRetry(requeuedTorrent.TorrentId, null, 3), Times.Once);
     }
 }

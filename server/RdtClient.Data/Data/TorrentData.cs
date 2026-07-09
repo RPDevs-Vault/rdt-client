@@ -21,7 +21,7 @@ public class TorrentData(DataContext dataContext, ILogger<TorrentData>? logger =
     public async Task<Torrent?> GetById(Guid torrentId)
     {
         var dbTorrent = await BuildTorrentQuery(includePayload: true)
-                              .FirstOrDefaultAsync(m => m.TorrentId == torrentId);
+            .FirstOrDefaultAsync(m => m.TorrentId == torrentId);
 
         if (dbTorrent == null)
         {
@@ -41,7 +41,7 @@ public class TorrentData(DataContext dataContext, ILogger<TorrentData>? logger =
         hash = hash.ToLower();
 
         var dbTorrent = await BuildTorrentQuery(includePayload: false)
-                              .FirstOrDefaultAsync(m => m.Hash == hash);
+            .FirstOrDefaultAsync(m => m.Hash == hash);
 
         if (dbTorrent == null)
         {

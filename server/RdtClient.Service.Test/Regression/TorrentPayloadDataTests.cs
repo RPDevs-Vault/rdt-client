@@ -17,6 +17,7 @@ public class TorrentPayloadDataTests : IAsyncLifetime
         await context.Database.EnsureCreatedAsync();
 
         var torrentData = new TorrentData(context);
+
         var template = new Torrent
         {
             DownloadClient = DownloadClient.Bezzad,
@@ -49,7 +50,7 @@ public class TorrentPayloadDataTests : IAsyncLifetime
         await using var context = CreateContext();
         await context.Database.EnsureCreatedAsync();
 
-        context.Torrents.Add(new Torrent
+        context.Torrents.Add(new()
         {
             TorrentId = Guid.NewGuid(),
             Hash = "hash-2",
@@ -79,7 +80,8 @@ public class TorrentPayloadDataTests : IAsyncLifetime
         await using (var context = CreateContext())
         {
             await context.Database.EnsureCreatedAsync();
-            context.Torrents.Add(new Torrent
+
+            context.Torrents.Add(new()
             {
                 TorrentId = torrentId,
                 Hash = "hash-3",
@@ -91,6 +93,7 @@ public class TorrentPayloadDataTests : IAsyncLifetime
                     Content = "magnet:?xt=urn:btih:hash-3"
                 }
             });
+
             await context.SaveChangesAsync();
         }
 

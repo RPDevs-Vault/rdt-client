@@ -15,7 +15,7 @@ public static class DownloadLinkMatcher
         if (!String.IsNullOrWhiteSpace(download.FileName))
         {
             var byFileName = infos.FirstOrDefault(i => !String.IsNullOrWhiteSpace(i.FileName) &&
-                                                         String.Equals(i.FileName, download.FileName, StringComparison.OrdinalIgnoreCase));
+                                                       String.Equals(i.FileName, download.FileName, StringComparison.OrdinalIgnoreCase));
 
             if (byFileName != null)
             {
