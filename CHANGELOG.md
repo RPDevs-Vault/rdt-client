@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased
 
+## [2.0.140] - 2026-07-08
+### Added
+- Added env variable SKIP_CHOWN to prevent setting ownership permissions on startup to /app and /data.
+
+### Changed
+- Store torrent payloads (torrent files) in a separate table to prevent them being downloaded on each page view.
+- Fixed refreshing the download path when a download fails.
+- Fixed SABnzbd file size reporting.
+- Fixed AutoDeleting only deleting when a torrent is finished, preventing it from being removed too quickly.
+
 ## [2.0.139] - 2026-06-24
 ### Added
 - Add IP binding for the Bezzad downloader.
