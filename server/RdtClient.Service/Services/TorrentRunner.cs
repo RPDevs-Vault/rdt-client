@@ -710,9 +710,12 @@ public class TorrentRunner(
                 {
                     Log($"Selecting files", torrent);
 
-                    await torrents.SelectFiles(torrent.TorrentId);
+                    var filesSelected = await torrents.SelectFiles(torrent.TorrentId);
 
-                    await torrents.UpdateFilesSelected(torrent.TorrentId, DateTime.UtcNow);
+                    if (filesSelected)
+                    {
+                        await torrents.UpdateFilesSelected(torrent.TorrentId, DateTime.UtcNow);
+                    }
                 }
 
                 // Debrid provider finished downloading the torrent, process the file to host.

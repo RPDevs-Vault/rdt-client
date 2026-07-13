@@ -153,6 +153,11 @@ public class TorBoxDebridClient(
     /// <inheritdoc />
     public Task<Int32?> SelectFiles(Torrent torrent)
     {
+        if (torrent.Files.Count == 0)
+        {
+            return Task.FromResult<Int32?>(null);
+        }
+
         return Task.FromResult<Int32?>(torrent.Files.Count);
     }
 
