@@ -415,21 +415,30 @@ public class Torrents(
         return result;
     }
 
-    public async Task SelectFiles(Guid torrentId)
+    public async Task<Boolean> SelectFiles(Guid torrentId)
     {
         var torrent = await GetById(torrentId);
 
         if (torrent == null)
         {
-            return;
+            return true;
         }
 
         var selected = await DebridClient.SelectFiles(torrent);
+
+        if (selected == null)
+        {
+            logger.LogWarning("File list not yet available from the debrid provider, retrying file selection next cycle {torrentInfo}", torrent.ToLog());
+
+            return false;
+        }
 
         if (selected == 0)
         {
             await MarkAllFilesExcluded(torrent);
         }
+
+        return true;
     }
 
     public async Task CreateDownloads(Guid torrentId)
