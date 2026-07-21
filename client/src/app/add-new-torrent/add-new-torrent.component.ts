@@ -174,10 +174,31 @@ export class AddNewTorrentComponent implements OnInit {
 
     this.selectedFiles = Array.from(files);
 
-    this.fileName =
-      this.selectedFiles.length === 1 ? this.selectedFiles[0].name : `${this.selectedFiles.length} files selected`;
+    this.updateFileName();
 
     this.checkFiles();
+  }
+
+  public removeFile(index: number): void {
+    this.selectedFiles = this.selectedFiles.filter((_, i) => i !== index);
+
+    this.updateFileName();
+
+    // With a single remaining file the per-torrent availability check applies
+    // again; with none it simply clears itself.
+    if (this.selectedFiles.length <= 1) {
+      this.checkFiles();
+    }
+  }
+
+  private updateFileName(): void {
+    if (this.selectedFiles.length === 0) {
+      this.fileName = null;
+    } else if (this.selectedFiles.length === 1) {
+      this.fileName = this.selectedFiles[0].name;
+    } else {
+      this.fileName = `${this.selectedFiles.length} files selected`;
+    }
   }
 
   public ok(): void {

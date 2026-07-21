@@ -53,6 +53,13 @@
             <li>
               <span class="icon is-small"><i class="fas fa-file" aria-hidden="true"></i></span>
               <span class="selected-files-name">{{ file.name }}</span>
+              <button
+                type="button"
+                class="delete is-small"
+                aria-label="Remove file"
+                [disabled]="saving"
+                (click)="removeFile($index)"
+              ></button>
             </li>
           }
         </ul>

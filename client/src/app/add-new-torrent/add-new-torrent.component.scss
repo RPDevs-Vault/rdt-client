@@ -26,9 +26,16 @@
   }
 
   .selected-files-name {
+    flex: 1;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .delete {
+    margin-left: auto;
+    flex-shrink: 0;
   }
 }
 
