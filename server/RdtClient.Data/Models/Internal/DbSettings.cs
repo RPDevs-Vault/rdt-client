@@ -108,11 +108,11 @@ public class DbSettingsDownloadClient
     [Description("Path where files are downloaded to on your host (i.e. D:\\Downloads). This path is used for *arr to find your downloads.")]
     public String MappedPath { get; set; } = @"C:\Downloads";
 
-    [DisplayName("Download speed (in MB/s) (only used for the Internal Downloader)")]
-    [Description("Maximum download speed in Megabytes per second. When set to 0 unlimited speed is used.")]
+    [DisplayName("Download speed (in MB/s) (only used for the Bezzad Downloader)")]
+    [Description("Maximum download speed in MB/s, applied per concurrent download (not a global limit). The effective total ceiling is this value multiplied by the 'Maximum parallel downloads' setting. For example, 40 with 2 parallel downloads is roughly 80 MB/s total, and 40 with 4 parallel downloads is roughly 160 MB/s total, so overall throughput can appear to exceed the value set here. When set to 0 unlimited speed is used.")]
     public Int32 MaxSpeed { get; set; } = 0;
 
-    [DisplayName("Parallel connections per download (only used for the Internal Downloader)")]
+    [DisplayName("Parallel connections per download (only used for the Bezzad Downloader)")]
     [Description("Maximum amount of parallel threads that are used to download a single file to your host. If set to 0 no parallel downloading will be done.")]
     public Int32 ParallelCount { get; set; } = 8;
 
@@ -124,7 +124,7 @@ public class DbSettingsDownloadClient
     [Description("Buffersize in bytes for the internal downloader, used to read data and write it to disk.")]
     public Int32 BufferSize { get; set; } = 4 * 1024 * 1024;
 
-    [DisplayName("Connection Timeout (only used for the Internal Downloader)")]
+    [DisplayName("Connection Timeout (only used for the Bezzad Downloader)")]
     [Description("Timeout in milliseconds before the downloader times out.")]
     public Int32 Timeout { get; set; } = 5000;
 
