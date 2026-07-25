@@ -122,6 +122,7 @@ public class TorrentData(DataContext dataContext, ILogger<TorrentData>? logger =
             return;
         }
 
+        dbTorrent.ClientKind = torrent.ClientKind;
         dbTorrent.RdName = torrent.RdName;
         dbTorrent.RdSize = torrent.RdSize;
         dbTorrent.RdHost = torrent.RdHost;
