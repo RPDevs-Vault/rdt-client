@@ -7,6 +7,7 @@ import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
 import { TorrentService } from '../torrent.service';
+import { catchError, concatMap, from, map, of, toArray } from 'rxjs';
 
 @Component({
   selector: 'app-add-new-torrent',
@@ -59,7 +60,7 @@ export class AddNewTorrentComponent implements OnInit {
   public excludeRegexError: string;
   public regexSelected: TorrentFileAvailability[];
 
-  private selectedFile: File | null = null;
+  public selectedFiles: File[] = [];
 
   public get category(): string {
     return this._category;
@@ -161,7 +162,7 @@ export class AddNewTorrentComponent implements OnInit {
   public changeType(type: 'torrent' | 'nzb'): void {
     this.type = type;
     this.fileName = null;
-    this.selectedFile = null;
+    this.selectedFiles = [];
   }
 
   public pickFile(evt: Event): void {
@@ -171,22 +172,46 @@ export class AddNewTorrentComponent implements OnInit {
       return;
     }
 
-    const file = files[0];
+    this.selectedFiles = Array.from(files);
 
-    this.fileName = file.name;
-
-    this.selectedFile = file;
+    this.updateFileName();
 
     this.checkFiles();
+  }
+
+  public removeFile(index: number): void {
+    this.selectedFiles = this.selectedFiles.filter((_, i) => i !== index);
+
+    this.updateFileName();
+
+    // With a single remaining file the per-torrent availability check applies
+    // again; with none it simply clears itself.
+    if (this.selectedFiles.length <= 1) {
+      this.checkFiles();
+    }
+  }
+
+  private updateFileName(): void {
+    if (this.selectedFiles.length === 0) {
+      this.fileName = null;
+    } else if (this.selectedFiles.length === 1) {
+      this.fileName = this.selectedFiles[0].name;
+    } else {
+      this.fileName = `${this.selectedFiles.length} files selected`;
+    }
   }
 
   public ok(): void {
     this.saving = true;
     this.error = null;
 
+    // Manual file selection targets the files of a single torrent/magnet and cannot
+    // apply to a batch, so it is skipped when multiple torrent files are uploaded.
+    const isMultiTorrent = this.type === 'torrent' && !this.magnetLink && this.selectedFiles.length > 1;
+
     let downloadManualFiles: string = null;
 
-    if (this.downloadAction === 2) {
+    if (this.downloadAction === 2 && !isMultiTorrent) {
       const selectedFiles = [];
       for (const filePath in this.downloadFiles) {
         if (this.downloadFiles[filePath] === true) {
@@ -196,6 +221,7 @@ export class AddNewTorrentComponent implements OnInit {
 
       if (selectedFiles.length === 0) {
         this.error = 'No files have been selected to download';
+        this.saving = false;
         return;
       }
 
@@ -229,14 +255,16 @@ export class AddNewTorrentComponent implements OnInit {
             this.saving = false;
           },
         });
-      } else if (this.selectedFile) {
-        this.torrentService.uploadFile(this.selectedFile, torrent).subscribe({
+      } else if (this.selectedFiles.length === 1) {
+        this.torrentService.uploadFile(this.selectedFiles[0], torrent).subscribe({
           next: () => this.router.navigate(['/']),
           error: (err) => {
             this.error = err.error;
             this.saving = false;
           },
         });
+      } else if (this.selectedFiles.length > 1) {
+        this.uploadMultiple(this.selectedFiles, torrent);
       } else {
         this.error = 'No magnet or file uploaded';
         this.saving = false;
@@ -250,8 +278,8 @@ export class AddNewTorrentComponent implements OnInit {
             this.saving = false;
           },
         });
-      } else if (this.selectedFile) {
-        this.torrentService.uploadNzbFile(this.selectedFile, torrent).subscribe({
+      } else if (this.selectedFiles.length > 0) {
+        this.torrentService.uploadNzbFile(this.selectedFiles[0], torrent).subscribe({
           next: () => this.router.navigate(['/']),
           error: (err) => {
             this.error = err.error;
@@ -263,6 +291,37 @@ export class AddNewTorrentComponent implements OnInit {
         this.saving = false;
       }
     }
+  }
+
+  /**
+   * Uploads several torrent files sequentially with the same parameters.
+   * Each upload is queued independently; failures are collected and reported
+   * without aborting the remaining uploads.
+   */
+  private uploadMultiple(files: File[], torrent: Torrent): void {
+    from(files)
+      .pipe(
+        concatMap((file) =>
+          this.torrentService.uploadFile(file, torrent).pipe(
+            map(() => ({ name: file.name, error: null as string | null })),
+            catchError((err) => of({ name: file.name, error: (err?.error as string) ?? 'Upload failed' })),
+          ),
+        ),
+        toArray(),
+      )
+      .subscribe((results) => {
+        const failures = results.filter((r) => r.error);
+
+        if (failures.length === 0) {
+          this.router.navigate(['/']);
+          return;
+        }
+
+        this.saving = false;
+        this.error =
+          `${failures.length} of ${files.length} file(s) failed: ` +
+          failures.map((f) => `${f.name} (${f.error})`).join('; ');
+      });
   }
 
   public onPaste(): void {
@@ -300,8 +359,8 @@ export class AddNewTorrentComponent implements OnInit {
           this.saving = false;
         },
       });
-    } else if (this.selectedFile) {
-      this.torrentService.checkFiles(this.selectedFile).subscribe({
+    } else if (this.selectedFiles.length === 1) {
+      this.torrentService.checkFiles(this.selectedFiles[0]).subscribe({
         next: (result) => {
           this.saving = false;
           this.availableFiles = result;
