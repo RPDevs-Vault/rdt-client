@@ -118,7 +118,7 @@ This [downloader](https://github.com/bezzad/Downloader) can be used to download 
 
 It has the following options:
 
-- Download speed (in MB/s): This number indicates the speed in MB/s per download over all parallel downloads and chunks.
+- Download speed (in MB/s): Maximum speed in MB/s applied **per concurrent download** (aggregated across that download's chunks), not a global limit. The effective total ceiling is this value multiplied by the "Maximum parallel downloads" setting. For example, 40 MB/s with 2 parallel downloads is roughly 80 MB/s total, and 40 MB/s with 4 parallel downloads is roughly 160 MB/s total, so total throughput can appear higher than the number you set here. Set to 0 for unlimited.
 - Parallel connections per download: This number indicates how many parallel it will use per download. This can increase speed, recommended is no more than 8.
 - Parallel chunks per download: This number indicates in how many chunks each download is split, recommended is no more than 8.
 - Connection Timeout: This number indicates the timeout in milliseconds before a download chunk times out. It will retry each chunk 5 times before completely failing.
@@ -134,7 +134,7 @@ It has the following options:
 - Url: The full URL to your Aria2c service. This must end in /jsonrpc. A standard path is `http://192.168.10.2:6800/jsonrpc`.
 - Secret: Optional secret to connecto to your Aria2c service.
 
-If Aria2c is selected, none of the above options for `Internal Downloader` are used, you have to configure Aria2c manually.
+If Aria2c is selected, none of the above Bezzad options are used, you have to configure Aria2c manually.
 
 #### Symlink downloader
 
