@@ -5,8 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.0.141] - 2026-07-30
+### Added
+- Added multi torrent file upload.
+
 ### Fixed
 - Corrected the Download speed / Parallel connections / Connection Timeout setting labels that still referenced the removed "Internal Downloader" - these settings drive the Bezzad downloader. Clarified that the Bezzad download-speed limit applies per concurrent download, not globally.
+- Fixed mobile dark mode styling.
+- Fixed saving the ClientKind on a torrent causing downstream issues with determining the download paths.
 
 ## [2.0.140] - 2026-07-08
 ### Added
