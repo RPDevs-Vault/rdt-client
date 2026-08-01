@@ -345,6 +345,15 @@ public class QBittorrent(ILogger<QBittorrent> logger, ISettings settings, Authen
             return torrent.RdName ?? String.Empty;
         }
 
+        // TorBox file paths already have the torrent name stripped off the front, so DownloadHelper always writes them
+        // to <savePath>/<RdName>/, single file torrents included. Report that folder as-is: TorBox names single file
+        // torrents after the file itself, so stripping the extension here points Sonarr/Radarr at a folder that
+        // does not exist.
+        if (torrent.ClientKind == Provider.TorBox)
+        {
+            return torrent.RdName;
+        }
+
         var topLevelSelectedFiles = torrent.Files
                                            .Where(m => m.Selected && !String.IsNullOrWhiteSpace(m.Path))
                                            .Select(m => m.Path.Trim('/').Trim('\\'))
@@ -358,11 +367,6 @@ public class QBittorrent(ILogger<QBittorrent> logger, ISettings settings, Authen
         {
             var selectedFileName = topLevelSelectedFiles[0]!;
             var selectedFileBaseName = Path.GetFileNameWithoutExtension(selectedFileName);
-
-            if (torrent.ClientKind == Provider.TorBox)
-            {
-                return selectedFileBaseName;
-            }
 
             if (!String.IsNullOrWhiteSpace(selectedFileBaseName) &&
                 selectedFileBaseName.Equals(torrent.RdName, StringComparison.OrdinalIgnoreCase))

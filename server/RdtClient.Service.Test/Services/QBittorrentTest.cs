@@ -406,4 +406,105 @@ public class QBittorrentTest
             }
         }
     }
+
+    [Fact]
+    public async Task TorrentInfo_ShouldKeepTorBoxRootNameExtension_WhenTorrentIsNamedAfterItsOnlyFile()
+    {
+        // Arrange
+        var previousMappedPath = _settings.Current.DownloadClient.MappedPath;
+        _settings.Current.DownloadClient.MappedPath = "/data/downloads";
+
+        try
+        {
+            // TorBox names single file torrents after the file, and file paths have the torrent name stripped off the
+            // front, so this lands on disk as /data/downloads/movies/Sample.Movie.2024.1080p-GROUP.mkv/<same name>.
+            var torrentRootName = "Sample.Movie.2024.1080p-GROUP.mkv";
+
+            var torrent = new Torrent
+            {
+                Hash = "hash1",
+                Category = "movies",
+                ClientKind = Provider.TorBox,
+                Completed = DateTimeOffset.UtcNow,
+                RdName = torrentRootName,
+                RdFiles = JsonSerializer.Serialize(new List<DebridClientFile>
+                {
+                    new()
+                    {
+                        Id = 1,
+                        Path = torrentRootName,
+                        Bytes = 1000,
+                        Selected = true
+                    }
+                }),
+                Type = DownloadType.Torrent
+            };
+
+            _torrentsMock.Setup(m => m.Get())
+                         .ReturnsAsync(new List<Torrent>
+                         {
+                             torrent
+                         });
+
+            // Act
+            var result = await _qBittorrent.TorrentInfo();
+
+            // Assert
+            Assert.Single(result);
+            Assert.Equal(Path.Combine("/data/downloads", "movies", torrentRootName) + Path.DirectorySeparatorChar, result[0].ContentPath);
+        }
+        finally
+        {
+            _settings.Current.DownloadClient.MappedPath = previousMappedPath;
+        }
+    }
+
+    [Fact]
+    public async Task TorrentInfo_ShouldUseTorBoxRootName_WhenOnlyFileAddsTheExtension()
+    {
+        // Arrange
+        var previousMappedPath = _settings.Current.DownloadClient.MappedPath;
+        _settings.Current.DownloadClient.MappedPath = "/data/downloads";
+
+        try
+        {
+            var torrentRootName = "Sample.Show.S01E01.1080p.WEB-DL-GROUP";
+
+            var torrent = new Torrent
+            {
+                Hash = "hash1",
+                Category = "tv",
+                ClientKind = Provider.TorBox,
+                Completed = DateTimeOffset.UtcNow,
+                RdName = torrentRootName,
+                RdFiles = JsonSerializer.Serialize(new List<DebridClientFile>
+                {
+                    new()
+                    {
+                        Id = 1,
+                        Path = $"{torrentRootName}.mkv",
+                        Bytes = 1000,
+                        Selected = true
+                    }
+                }),
+                Type = DownloadType.Torrent
+            };
+
+            _torrentsMock.Setup(m => m.Get())
+                         .ReturnsAsync(new List<Torrent>
+                         {
+                             torrent
+                         });
+
+            // Act
+            var result = await _qBittorrent.TorrentInfo();
+
+            // Assert
+            Assert.Equal(Path.Combine("/data/downloads", "tv", torrentRootName) + Path.DirectorySeparatorChar, result[0].ContentPath);
+        }
+        finally
+        {
+            _settings.Current.DownloadClient.MappedPath = previousMappedPath;
+        }
+    }
 }
