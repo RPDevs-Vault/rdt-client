@@ -410,53 +410,36 @@ public class QBittorrentTest
     [Fact]
     public async Task TorrentInfo_ShouldKeepTorBoxRootNameExtension_WhenTorrentIsNamedAfterItsOnlyFile()
     {
-        // Arrange
-        var previousMappedPath = _settings.Current.DownloadClient.MappedPath;
         _settings.Current.DownloadClient.MappedPath = "/data/downloads";
 
-        try
-        {
-            // TorBox names single file torrents after the file, and file paths have the torrent name stripped off the
-            // front, so this lands on disk as /data/downloads/movies/Sample.Movie.2024.1080p-GROUP.mkv/<same name>.
-            var torrentRootName = "Sample.Movie.2024.1080p-GROUP.mkv";
+        var torrentRootName = "Sample.Movie.2024.1080p-GROUP.mkv";
 
-            var torrent = new Torrent
+        var torrent = new Torrent
+        {
+            Hash = "hash1",
+            Category = "movies",
+            ClientKind = Provider.TorBox,
+            Completed = DateTimeOffset.UtcNow,
+            RdName = torrentRootName,
+            RdFiles = JsonSerializer.Serialize(new List<DebridClientFile>
             {
-                Hash = "hash1",
-                Category = "movies",
-                ClientKind = Provider.TorBox,
-                Completed = DateTimeOffset.UtcNow,
-                RdName = torrentRootName,
-                RdFiles = JsonSerializer.Serialize(new List<DebridClientFile>
+                new()
                 {
-                    new()
-                    {
-                        Id = 1,
-                        Path = torrentRootName,
-                        Bytes = 1000,
-                        Selected = true
-                    }
-                }),
-                Type = DownloadType.Torrent
-            };
+                    Id = 1,
+                    Path = torrentRootName,
+                    Bytes = 1000,
+                    Selected = true
+                }
+            }),
+            Type = DownloadType.Torrent
+        };
 
-            _torrentsMock.Setup(m => m.Get())
-                         .ReturnsAsync(new List<Torrent>
-                         {
-                             torrent
-                         });
+        _torrentsMock.Setup(m => m.Get()).ReturnsAsync([torrent]);
 
-            // Act
-            var result = await _qBittorrent.TorrentInfo();
+        var result = await _qBittorrent.TorrentInfo();
 
-            // Assert
-            Assert.Single(result);
-            Assert.Equal(Path.Combine("/data/downloads", "movies", torrentRootName) + Path.DirectorySeparatorChar, result[0].ContentPath);
-        }
-        finally
-        {
-            _settings.Current.DownloadClient.MappedPath = previousMappedPath;
-        }
+        Assert.Single(result);
+        Assert.Equal(Path.Combine("/data/downloads", "movies", torrentRootName) + Path.DirectorySeparatorChar, result[0].ContentPath);
     }
 
 }
