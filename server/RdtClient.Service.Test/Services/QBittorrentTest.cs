@@ -406,4 +406,40 @@ public class QBittorrentTest
             }
         }
     }
+
+    [Fact]
+    public async Task TorrentInfo_ShouldKeepTorBoxRootNameExtension_WhenTorrentIsNamedAfterItsOnlyFile()
+    {
+        _settings.Current.DownloadClient.MappedPath = "/data/downloads";
+
+        var torrentRootName = "Sample.Movie.2024.1080p-GROUP.mkv";
+
+        var torrent = new Torrent
+        {
+            Hash = "hash1",
+            Category = "movies",
+            ClientKind = Provider.TorBox,
+            Completed = DateTimeOffset.UtcNow,
+            RdName = torrentRootName,
+            RdFiles = JsonSerializer.Serialize(new List<DebridClientFile>
+            {
+                new()
+                {
+                    Id = 1,
+                    Path = torrentRootName,
+                    Bytes = 1000,
+                    Selected = true
+                }
+            }),
+            Type = DownloadType.Torrent
+        };
+
+        _torrentsMock.Setup(m => m.Get()).ReturnsAsync([torrent]);
+
+        var result = await _qBittorrent.TorrentInfo();
+
+        Assert.Single(result);
+        Assert.Equal(Path.Combine("/data/downloads", "movies", torrentRootName) + Path.DirectorySeparatorChar, result[0].ContentPath);
+    }
+
 }

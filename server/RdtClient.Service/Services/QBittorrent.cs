@@ -345,6 +345,11 @@ public class QBittorrent(ILogger<QBittorrent> logger, ISettings settings, Authen
             return torrent.RdName ?? String.Empty;
         }
 
+        if (torrent.ClientKind == Provider.TorBox)
+        {
+            return torrent.RdName;
+        }
+
         var topLevelSelectedFiles = torrent.Files
                                            .Where(m => m.Selected && !String.IsNullOrWhiteSpace(m.Path))
                                            .Select(m => m.Path.Trim('/').Trim('\\'))
@@ -358,11 +363,6 @@ public class QBittorrent(ILogger<QBittorrent> logger, ISettings settings, Authen
         {
             var selectedFileName = topLevelSelectedFiles[0]!;
             var selectedFileBaseName = Path.GetFileNameWithoutExtension(selectedFileName);
-
-            if (torrent.ClientKind == Provider.TorBox)
-            {
-                return selectedFileBaseName;
-            }
 
             if (!String.IsNullOrWhiteSpace(selectedFileBaseName) &&
                 selectedFileBaseName.Equals(torrent.RdName, StringComparison.OrdinalIgnoreCase))
