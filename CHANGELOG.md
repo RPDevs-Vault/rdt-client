@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.142] - 2026-08-03
+### Fixed
+- Reported foldername does not match actual foldername for TorBox
+
 ## [2.0.141] - 2026-07-30
 ### Added
 - Added multi torrent file upload.
